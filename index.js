@@ -1,24 +1,30 @@
-const { Configuration, OpenAIApi } = require("openai");
-const express = require("express");
+import { Configuration, OpenAIApi } from "openai";
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+
 const app = express();
 const port = 3080;
+app.use(bodyParser.json());
+app.use(cors());
 
 const configuration = new Configuration({
-  organization: "org-3dvOryph5xF19pRC30xtiYKo",
-  apiKey: "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",
+  organization: "",
+  apiKey: "",
 });
 const openai = new OpenAIApi(configuration);
 
 app.post("/", async (req, res) => {
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: "Say this is a text",
-    max_tokens: 7,
-    temperature: 0,
+  const { message } = req.body;
+  const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: `${message}` }],
+    max_tokens: 100,
+    temperature: 0.5,
   });
-  console.log(response.data.choices[0].text);
+
   res.json({
-    data: response.data,
+    completion: completion.data.choices[0].message,
   });
 });
 
